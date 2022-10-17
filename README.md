@@ -34,3 +34,18 @@
  <ul>
   <li>Proyectos</li>
  </ul>
+ 
+ <h1>Pasos para ejecutar la api rest</h1>
+ <ol>
+  <li>Instalar python en su ultima versión</li>
+  <li>Instalar xampp o servidor mysql</li>
+  <li>Instalar librerias : </li>
+  <ul>
+    pip install
+    <li>flask</li>
+    <li>flask-sqlalchemy</li>
+    <li>bcrypt</li>
+    <li>sqlalchemy</li>
+    <li>PyMySQL</li>
+  </ul>
+  </ol>
