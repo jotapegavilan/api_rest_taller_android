@@ -26,6 +26,7 @@ class proyectos(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=True)
     nombre = db.Column(db.Text, nullable=False, unique=True)
     descripcion = db.Column(db.Text, nullable=False)    
+    repositorio = db.Column(db.Text, nullable=False)    
     fecha_creacion = db.Column(db.DateTime,nullable=True)
     fecha_fin = db.Column(db.DateTime,nullable=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
@@ -37,6 +38,7 @@ class proyectos(db.Model):
             "id" : self.id,
             "nombre" : self.nombre,            
             "descripcion" : self.descripcion,
+            "repositorio" : self.repositorio,
             "fecha_creacion" : self.fecha_creacion,
             "fecha_fin" : self.fecha_fin,
             "usuario_id" : self.usuario_id,

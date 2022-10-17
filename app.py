@@ -33,6 +33,8 @@ def existe(llave, dicc):
 def sign_up():   
     try:            
         user_json = request.get_json()
+        if( usuarios.query.filter_by(email=user_json["email"]).first() != None ):
+            return jsonify({"msg":user_json["email"]+" YA EXISTE EN NUESTROS REGISTROS."}),400
         user = usuarios()
         if existe('nombres',user_json):
             user.nombres = user_json['nombres']
