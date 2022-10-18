@@ -34,7 +34,7 @@ def sign_up():
     try:            
         user_json = request.get_json()
         if( usuarios.query.filter_by(email=user_json["email"]).first() != None ):
-            return jsonify({"msg":user_json["email"]+" YA EXISTE EN NUESTROS REGISTROS."}),400
+            return jsonify({"msg":user_json["email"]+" YA EXISTE EN NUESTROS REGISTROS."})
         user = usuarios()
         if existe('nombres',user_json):
             user.nombres = user_json['nombres']
@@ -43,22 +43,22 @@ def sign_up():
         if existe('apellidos',user_json):
             user.apellidos = user_json['apellidos']
         else:
-            return jsonify({"msg":'No se envio el campo apellidos'}),400
+            return jsonify({"msg":'No se envio el campo apellidos'})
         if existe('email',user_json):
             user.email = user_json['email']
         else:
-            return jsonify({"msg":'No se envio el campo email'}),400
+            return jsonify({"msg":'No se envio el campo email'})
         if existe('rol',user_json):
             user.rol = user_json['rol']
         else:
-            return jsonify({"msg":'No se envio el campo email'}),400
+            return jsonify({"msg":'No se envio el campo email'})
         if existe('clave',user_json):
             password = user_json['clave'].encode('utf-8')
             print(password)
             if len(password) < 6:
-                return jsonify({"msg":'El password debe tener min. 6 caracteres'}),400 
+                return jsonify({"msg":'El password debe tener min. 6 caracteres'})
         else:
-            return jsonify({"msg":'No se envio el campo clave'}),400 
+            return jsonify({"msg":'No se envio el campo clave'})
         
         user.clave = bcrypt.hashpw(password=password,salt=bcrypt.gensalt())      
         clave = user.clave
@@ -83,25 +83,24 @@ def sign_in():
             if existe('email',login_json):
                 username = login_json['email']
             else:
-                return jsonify({"msg":'No se envio el campo email'}),400
+                return jsonify({"msg":'No se envio el campo email'})
             if existe('clave',login_json):
                 password = login_json['clave'].encode('utf-8')
                 
             else:
-                return jsonify({"msg":'No se envio el campo clave'}),400        
+                return jsonify({"msg":'No se envio el campo clave'})      
             user = usuarios.query.filter_by(email=username).first()
-            print(user.getClave())
-            print(password)
+            
             if(user == None):
-                return jsonify({"msg":"El usuario no existe"}),400                
+                return jsonify({"msg":"El usuario no existe"})            
             if bcrypt.checkpw(password,user.getClave()): 
                 access_token = create_access_token(identity=username,additional_claims={"rol":user.rol,"id":user.id})            
                 db.session.commit()
-                return jsonify(access_token=access_token)
+                return jsonify({"msg":"ok","user":user.serialize()})
             else:
-                return jsonify({"msg":"La contraseña es incorrecta"}),401
+                return jsonify({"msg":"La contraseña es incorrecta"})
         else:
-                return jsonify({"msg":"No se envio un json"}),401
+                return jsonify({"msg":"No se envio un json"})
     except Exception as ex:
         return jsonify({"msg":ex}),500
 
@@ -136,9 +135,9 @@ def add_categorie():
     db.session.commit()
     return jsonify({"msg":cat.serialize()}),200
 
-@app.route("/api/proyectos")
-def get_proyectos():
-    projects = proyectos.query.order_by(proyectos.id.desc()).limit(10).all()
+@app.route("/api/proyectos/<int:id>")
+def get_proyectos(id):
+    projects = proyectos.query.filter_by(usuario_id=id).all()
     toReturn = [p.serialize() for p in projects]
     return jsonify(toReturn),200
 
