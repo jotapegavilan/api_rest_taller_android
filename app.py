@@ -115,13 +115,13 @@ def get_users():
 
 @app.route("/api/lenguajes")
 def get_lenguajes():
-    leng = lenguajes.query.order_by(lenguajes.id.desc()).limit(10).all()
+    leng = lenguajes.query.order_by(lenguajes.id.asc()).limit(10).all()
     toReturn = [l.serialize() for l in leng]
     return jsonify(toReturn),200
 
 @app.route("/api/categorias")
 def get_categories():
-    categories = categorias.query.order_by(categorias.id.desc()).limit(10).all()
+    categories = categorias.query.order_by(categorias.id.asc()).limit(10).all()
     toReturn = [c.serialize() for c in categories]
     return jsonify(toReturn),200
 
@@ -137,21 +137,21 @@ def add_categorie():
 
 @app.route("/api/proyectos/<int:id>")
 def get_proyectos(id):
-    projects = proyectos.query.filter_by(usuario_id=id).all()
+    projects = proyectos.query.filter_by(usuario_id=id).order_by(proyectos.id.desc()).all()
     toReturn = [p.serialize() for p in projects]
     return jsonify(toReturn),200
 
-@app.route("/api/proyectos/<int:id>")
-def get_proyecto(id):
-    project = proyectos.query.get(id)    
-    return jsonify(project.serialize()),200
 
 @app.route("/api/proyectos/<int:id>",methods=["DELETE"])
 def delete_proyecto(id):
+    print(id)
     project = proyectos.query.get(id)  
+    print(project)
+    if(project == None):
+        return jsonify({"msg":"no existe"})
     db.session.delete(project)
     db.session.commit()  
-    return jsonify(project.serialize()),200
+    return jsonify({"msg":"ok"})
 
 @app.route("/api/proyectos",methods=["POST"])
 def add_proyecto():
