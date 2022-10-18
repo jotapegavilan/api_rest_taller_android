@@ -1,28 +1,13 @@
-from flask import Flask,jsonify,request, redirect, url_for, flash,send_file
-import shutil
-from zipfile import ZipFile
-import json
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt, get_jwt_identity, set_access_cookies, unset_jwt_cookies, decode_token
+from flask import Flask,jsonify,request
 import bcrypt
-from datetime import timedelta,datetime,timezone
-import os
-from sqlalchemy import desc, text, distinct
-import urllib
-import time
-import jwt
 from models import db,usuarios,categorias,proyectos,lenguajes
 
 app = Flask(__name__)
-#app.config['JSON_AS_ASCII'] = False
+app.config['JSON_AS_ASCII'] = False
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:@localhost/taller_android"
-app.config["JWT_SECRET_KEY"] = 'api_urc_rest_auter'
-#app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=9)
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=60)
+
 
 db.init_app(app)
-
-
-jwt = JWTManager(app)
 
 
 def existe(llave, dicc):
@@ -93,8 +78,7 @@ def sign_in():
             
             if(user == None):
                 return jsonify({"msg":"El usuario no existe"})            
-            if bcrypt.checkpw(password,user.getClave()): 
-                access_token = create_access_token(identity=username,additional_claims={"rol":user.rol,"id":user.id})            
+            if bcrypt.checkpw(password,user.getClave()):                 
                 db.session.commit()
                 return jsonify({"msg":"ok","user":user.serialize()})
             else:
