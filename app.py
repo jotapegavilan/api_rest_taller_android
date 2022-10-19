@@ -1,22 +1,14 @@
 from flask import Flask,jsonify,request
-<<<<<<< HEAD
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token
 import bcrypt
 from datetime import timedelta
-=======
-import bcrypt
->>>>>>> 4ca5abc31e0e4b766fb482d0e91b98222ed02f57
 from models import db,usuarios,categorias,proyectos,lenguajes
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:@localhost/taller_android"
-<<<<<<< HEAD
 app.config["JWT_SECRET_KEY"] = 'taller_android_st'
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=60)
-=======
-
->>>>>>> 4ca5abc31e0e4b766fb482d0e91b98222ed02f57
 
 db.init_app(app)
 
@@ -87,14 +79,9 @@ def sign_in():
             
             if(user == None):
                 return jsonify({"msg":"El usuario no existe"})            
-<<<<<<< HEAD
             if bcrypt.checkpw(password,user.getClave()): 
                 access_token = create_access_token(identity=username,additional_claims={"rol":user.rol,"id":user.id})  
                 user.token = access_token
-=======
-            if bcrypt.checkpw(password,user.getClave()):                 
-                db.session.commit()
->>>>>>> 4ca5abc31e0e4b766fb482d0e91b98222ed02f57
                 return jsonify({"msg":"ok","user":user.serialize()})
             else:
                 return jsonify({"msg":"La contraseña es incorrecta"})
