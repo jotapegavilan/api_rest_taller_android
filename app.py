@@ -1,22 +1,13 @@
-from flask import Flask,jsonify,request, redirect, url_for, flash,send_file
-import shutil
-from zipfile import ZipFile
-import json
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt, get_jwt_identity, set_access_cookies, unset_jwt_cookies, decode_token
+from flask import Flask,jsonify,request
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token
 import bcrypt
-from datetime import timedelta,datetime,timezone
-import os
-from sqlalchemy import desc, text, distinct
-import urllib
-import time
-import jwt
+from datetime import timedelta
 from models import db,usuarios,categorias,proyectos,lenguajes
 
 app = Flask(__name__)
 #app.config['JSON_AS_ASCII'] = False
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:@localhost/taller_android"
-app.config["JWT_SECRET_KEY"] = 'api_urc_rest_auter'
-#app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=9)
+app.config["JWT_SECRET_KEY"] = 'taller_android_st'
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=60)
 
 db.init_app(app)
@@ -29,7 +20,7 @@ def existe(llave, dicc):
     return llave in dicc
 
 @app.route('/api/sign_up', methods=['POST'])
-#@jwt_required()
+
 def sign_up():   
     try:            
         user_json = request.get_json()
@@ -65,9 +56,7 @@ def sign_up():
         user.clave = user.clave.decode('utf-8')  
 
         db.session.add(user)        
-        db.session.commit()
-        print(bcrypt.checkpw(password,clave))
-        print(bcrypt.checkpw(password,user.getClave()))
+        db.session.commit()        
         
         return jsonify({"msg":"Usuario registrado correctamente"})
     except Exception as ex:
@@ -94,8 +83,8 @@ def sign_in():
             if(user == None):
                 return jsonify({"msg":"El usuario no existe"})            
             if bcrypt.checkpw(password,user.getClave()): 
-                access_token = create_access_token(identity=username,additional_claims={"rol":user.rol,"id":user.id})            
-                db.session.commit()
+                access_token = create_access_token(identity=username,additional_claims={"rol":user.rol,"id":user.id})  
+                user.token = access_token
                 return jsonify({"msg":"ok","user":user.serialize()})
             else:
                 return jsonify({"msg":"La contraseña es incorrecta"})
@@ -136,6 +125,7 @@ def add_categorie():
     return jsonify({"msg":cat.serialize()}),200
 
 @app.route("/api/proyectos/<int:id>")
+@jwt_required()
 def get_proyectos(id):
     projects = proyectos.query.filter_by(usuario_id=id).order_by(proyectos.id.desc()).all()
     toReturn = [p.serialize() for p in projects]

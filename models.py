@@ -8,6 +8,7 @@ class usuarios(db.Model):
     email = db.Column(db.Text, nullable=False)
     clave = db.Column(db.Text, nullable=False)
     rol = db.Column(db.Text, nullable=True)    
+    token = ""
     projects = db.relationship('proyectos', backref='usuario')
 
     def getClave(self):
@@ -19,7 +20,8 @@ class usuarios(db.Model):
             "nombres" : self.nombres,            
             "apellidos" : self.apellidos,
             "email" : self.email,
-            "rol" : self.rol
+            "rol" : self.rol,
+            "token" : self.token
         }
 
 class proyectos(db.Model):
