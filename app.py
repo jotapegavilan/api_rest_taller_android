@@ -7,8 +7,7 @@ from models import db,usuarios,categorias,proyectos,lenguajes
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:@localhost/taller_android"
-app.config["JWT_SECRET_KEY"] = 'taller_android_st'
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=60)
+
 
 db.init_app(app)
 
@@ -80,8 +79,8 @@ def sign_in():
             if(user == None):
                 return jsonify({"msg":"El usuario no existe"})            
             if bcrypt.checkpw(password,user.getClave()): 
-                access_token = create_access_token(identity=username,additional_claims={"rol":user.rol,"id":user.id})  
-                user.token = access_token
+                #access_token = create_access_token(identity=username,additional_claims={"rol":user.rol,"id":user.id})  
+                #user.token = access_token
                 return jsonify({"msg":"ok","user":user.serialize()})
             else:
                 return jsonify({"msg":"La contraseña es incorrecta"})
@@ -90,14 +89,22 @@ def sign_in():
     except Exception as ex:
         return jsonify({"msg":ex}),500
 
-
-
-
 @app.route("/api/usuarios")
 def get_users():
     users = usuarios.query.order_by(usuarios.id.desc()).limit(10).all()
     toReturn = [u.serialize() for u in users]
     return jsonify(toReturn),200
+
+@app.route("/api/usuarios",methods=["PUT"])
+def modify_user():
+    request_data = request.get_json()
+    if(existe("clave", request_data)):
+        passw = request_data["clave"].encode('utf-8')
+        request_data["clave"] = bcrypt.hashpw(password=passw,salt=bcrypt.gensalt())     
+    usuarios.query.filter_by(id=request_data["id"]).update(request_data)    
+    db.session.commit()
+    usr = usuarios.query.filter_by(id=request_data["id"]).first()
+    return jsonify({"msg":"ok","user":usr.serialize()}),200
 
 @app.route("/api/lenguajes")
 def get_lenguajes():
@@ -122,7 +129,6 @@ def add_categorie():
     return jsonify({"msg":cat.serialize()}),200
 
 @app.route("/api/proyectos/<int:id>")
-@jwt_required()
 def get_proyectos(id):
     projects = proyectos.query.filter_by(usuario_id=id).order_by(proyectos.id.desc()).all()
     toReturn = [p.serialize() for p in projects]
